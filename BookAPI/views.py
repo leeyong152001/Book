@@ -12,7 +12,7 @@ class ALLBookViewSet(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializers
 
-class DetailBookViewSet(generics.RetrieveAPIView):
+class DetailBookViewSet(generics.RetrieveAPIView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
     lookup_field = 'id'
     serializer_class = BookSerializers
@@ -24,5 +24,5 @@ class CartViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIV
 
 class CartUserViewSet(generics.ListCreateAPIView, generics.UpdateAPIView,generics.DestroyAPIView):
     queryset = Cart.objects.all()
-    lookup_field = 'user_id'
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]

@@ -28,4 +28,3 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['user_id', 'books_id','time_order']
-        lookup_field = 'user_id'
