@@ -1,40 +1,29 @@
 # from django.shortcuts import render
 # from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, viewsets, status
+from rest_framework import generics, viewsets, status, views
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import *
 from .models import *
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user
 
-
-class RegisterView(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
-    def post(self,request):
-        user=request.data
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        user_data = serializer.data
-        return Response(user_data, status=status.HTTP_201_CREATED)
-
-class LoginAPIView(generics.GenericAPIView):
+class GetUser(generics.ListAPIView):
     queryset = User.objects.all()
-    serializer_class = LoginSerializer
-    def post(self,request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+    serializer_class = UserSerializer
 
-class LogoutAPIView(generics.GenericAPIView):
-    serializer_class = LogoutSerializer
-    permission_classes = (IsAuthenticated)
+    def get(self,request):
+        user = request.user
+        return Response({user.id,user.username})
+
+
+class BlacklistRefreshView(views.APIView):
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        token = RefreshToken(request.data.get('refresh'))
+        token.blacklist()
+        return Response("Success")
 
 class ALLBookViewSet(generics.ListCreateAPIView):
     queryset = Book.objects.all()
@@ -63,11 +52,6 @@ class OrderViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPI
 class CommentViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
-
-class RatingViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
-    queryset = Rating.objects.all()
-    serializer_class = RatingSerializer
     permission_classes = [IsAuthenticated]
 
 class WishListViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):

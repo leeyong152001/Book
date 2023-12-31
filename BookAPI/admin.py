@@ -5,7 +5,6 @@ from .models import *
 # Register your models here.
 admin.site.register(Category)
 admin.site.register(Book)
-admin.site.register(Rating)
 admin.site.register(Comment)
 admin.site.register(Voucher)
 admin.site.register(Wishlist)

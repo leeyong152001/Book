@@ -1,27 +1,10 @@
 from django.db import models
-# from django.contrib.auth.models import User
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-from rest_framework_simplejwt.tokens import RefreshToken
 
 import datetime as dt
 
-# Create your models here.
-class User(AbstractUser):
-    email = models.EmailField(max_length=255, unique=True, db_index=True)
-    def __str__(self):
-        return self.username
-
-    def tokens(self):
-        refresh = RefreshToken.for_user(self)
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-
 class Category(models.Model):
-    slug = models.SlugField()
     title = models.CharField(max_length=255, db_index=True)
 
     def __str__(self) -> str:
@@ -42,31 +25,22 @@ class Book(models.Model):
     def __str__(self):
         return self.book_name
 
-class Rating(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    book = models.ForeignKey(Book,on_delete=models.CASCADE)
-    rate = models.FloatField(validators=[MinValueValidator(0.0),MaxValueValidator(5.0)], default=1.0)
-
-    def __str__(self):
-        return str(self.rate)
-    
-
 class Wishlist(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     wished_item = models.ForeignKey(Book,on_delete=models.CASCADE)
-    slug = models.CharField(max_length=30,null=True,blank=True)
     added_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.wished_item.title
+        return  "Wishlist - " + self.user.username
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    rate = models.FloatField(validators=[MinValueValidator(0.0),MaxValueValidator(5.0)], default=1.0)
     comment = models.TextField()
 
     def __str__(self):
-        return self.book
+        return self.user.username + " - " + self.book.book_name
 
 class Cart(models.Model):
     user_id = models.OneToOneField(User, on_delete= models.CASCADE)
@@ -86,7 +60,6 @@ class Voucher(models.Model):
     def __str__(self):
         return self.code
 
-
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     delivery_crew = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='delivery_crew', null= True)
@@ -95,8 +68,8 @@ class Order(models.Model):
     date = models.DateField(auto_now_add=True)
     voucher = models.ForeignKey('Voucher', on_delete=models.SET_NULL, null=True, blank=True)
 
-    def __str__(self):
-        return self.user.username
+#     def __str__(self):
+#         return self.user.username
 
 # class Status(models.Model):
 #     value = models.CharField(max_length=255)
